@@ -19,9 +19,9 @@ Datagram sockets are usually associated with UDP, and stream sockets with TCP.
 ## Functions
 
 ### Lookup 
-Use ```gethostname()``` to get current systems hostname
-Use ```gethostbyname("<hostname>")``` to get the IP of the host
-To get more info about host, ```gethostbyname_ex("<hostname>")```. This gives us canonical hostname of server, all alias list, list of IP addr which can be used to reach it. this can help a client implement their own load balancing as they know all the ips to reach the server
-Use ```getfqdn()``` to convert partial to fully qualified domain name
-Use ```gethostbyaddr("<IP>")``` to get hostname from given servers IP. returns hostname, alias list, all IPs list
+  - Use ```gethostname()``` to get current systems hostname
+  - Use ```gethostbyname("<hostname>")``` to get the IP of the host
+  - To get more info about host, ```gethostbyname_ex("<hostname>")```. This gives us canonical hostname of server, all alias list, list of IP addr which can be used to reach it. this can help a client implement their own load balancing as they know all the ips to reach the server
+  - Use ```getfqdn()``` to convert partial to fully qualified domain name
+  - Use ```gethostbyaddr("<IP>")``` to get hostname from given servers IP. returns hostname, alias list, all IPs list
 
