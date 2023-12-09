@@ -43,8 +43,28 @@ Datagram sockets are usually associated with UDP, and stream sockets with TCP.
   - Useful code:
     ```python
     import socket
-    list1 = dir(socket)  # returns list of all methods and attr of an obj
-    attr_dict = {getattr(socket,n):n for n in list1 if n.startswith('IPPORTO_')}  # creates a dict having the proto names which start with IPPROTO, and their transport protocol number
+    def get_constants(string):
+        return {                                                                # returns a dict having transport proto num of proto which start with IPPROTO_, and the proto name
+            getattr(socket,n):n for n in dir(socket) if n.startswith(string)    # dir(socket) returns list of all methods and attr of an obj
+    }
+    ip_proto_dict = get_constants('IPPROTO_')
     ``` 
   - Use ```getprotobyname('<proto>')``` to transport proto num assigned to a protocol
 
+### Lookup Server Address
+  - ```getaddrinfo("<server>", "<port>" [,optional])``` returns list of tuples containing info to make a conn. layout of a tuple is: addr family, socktype, protocol num, cannonical name, sock addr.
+    server and port are compulsory to pass to the function, but there are optional perimeters too, which are family, socktype, proto, flags. eg:
+    ```
+    In [23]: socket.getaddrinfo('www.python.org','http')
+    Out[23]:
+            [(<AddressFamily.AF_INET: 2>,
+            <SocketKind.SOCK_STREAM: 1>,
+            6,
+            '',
+            ('151.101.152.223', 80)),
+            (<AddressFamily.AF_INET6: 10>,
+            <SocketKind.SOCK_STREAM: 1>,
+            6,
+            '',
+            ('2a04:4e42:24::223', 80, 0, 0))]
+    ```
