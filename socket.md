@@ -68,3 +68,23 @@ Datagram sockets are usually associated with UDP, and stream sockets with TCP.
             '',
             ('2a04:4e42:24::223', 80, 0, 0))]
     ```
+
+### IP Addr Representations
+  - in C, datatype *struct sockaddr* used to represent IP as binary value, unlike python
+  - to convert IP from python to C representation and vice versa, use ```inet_aton()``` (ascii to network-byte, so from python to C type format) and ```inet_ntoa()``` (ntoa means network-byte to ascii, so from C to python type format). eg:
+    ```
+    socket.inet_aton('127.0.0.1')
+    >  b'\x7f\x00\x00\x01'
+
+    socket.inet_ntoa(b'\x7f\x00\x00\x01')
+    > '127.0.0.1'
+    ```
+  - ```inet_ntop()``` and ```inet_pton()``` take in both the string/byte-format and the addr type (AF_INET or AF_INET6). eg:
+    ```
+    socket.inet_pton(socket.AF_INET6,'2002:ac10:10a:1234:21e:52ff:fe74:40e')
+    > b' \x02\xac\x10\x01\n\x124\x02\x1eR\xff\xfet\x04\x0e'
+
+    socket.inet_ntop(socket.AF_INET6, b' \x02\xac\x10\x01\n\x124\x02\x1eR\xff\xfet\x04\x0e')
+    > '2002:ac10:10a:1234:21e:52ff:fe74:40e'
+    ```
+################ END FOR NOW ################ 
