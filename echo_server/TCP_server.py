@@ -5,16 +5,16 @@ import signal
 
 # creating a class for the server
 class TCPserver():
-	host = '127.0.0.1'
-	port = 10001
+	# init method to define the host and port, default values given
+	def __init__(self, host='127.0.0.1', port=10001):
+		self.host = host
+		self.port = port
 
 	# method to start the server
-	def start(self):	
+	def start(self):
 		print('Starting the server now...')
-		print('Press Ctrl+c to stop the server.')
 
-		# creating a signal handler
-		signal.signal(signal.SIGINT, self.stop_server)
+		self.signal_handler()
 
 		# creating socket obj, server is TCP based, using ipv4
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,22 +40,39 @@ class TCPserver():
 				while True:
 					# recv(n) means that we will read only first n bytes of data, and with while loop we can keep reading till the end
 					data_recv = conn.recv(16)
-					
-					# if there is data, send it as it is back to the client
-					if data_recv:
-						print(f'Data received: {data_recv}')
-						conn.sendall(data_recv)
-					else:
-						print(f'No data received')
+
+					to_send = self.handle_request(data_recv)
+
+					if not to_send:
 						break
+					else:
+						conn.sendall(data_recv)
+
 			finally:
 				conn.close()
 
-	# callable function for stopping the server with Ctrl+c
-	def stop_server(self, signal, frame):
-		print('\nDetected KeyboardInterrupt.')
-		print('Stopping the server now...')
-		raise SystemExit
+	# process the received data and send
+	def handle_request(self, data_recv):
+		# if there is data, send it as it is back to the client
+		if data_recv:
+			print(f'Data received: {data_recv}')
+			return data_recv
+		else:
+			print(f'No data received')
+			return 0
+
+	# method for handling SIGINT
+	def signal_handler(self):
+		print('Press Ctrl+c to stop the server.')
+
+		# callable function for stopping the server with Ctrl+c
+		def stop_server(signal, frame):
+			print('\nDetected KeyboardInterrupt.')
+			print('Stopping the server now...')
+			raise SystemExit
+
+		# creating a signal handler
+		signal.signal(signal.SIGINT, stop_server)
 
 
 if __name__ == '__main__':
