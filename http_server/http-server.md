@@ -17,3 +17,5 @@
 	Hello, world!              # Response body
 	```
   - status and headers are for browser/user-agent (not for display), body is for display
+  - headers contn info about site/curr page
+

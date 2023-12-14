@@ -7,9 +7,7 @@ import signal
 class TCPclient():
 	# init method to initialize the server addr, default values given
 	def __init__(self, host='127.0.0.1', port=10001):
-		self.host = host
-		self.port = port
-		self.server_addr = (self.host, self.port)
+		self.server_addr = (host, port)
 
 	# method to send request to server and get response
 	def client_start(self):
