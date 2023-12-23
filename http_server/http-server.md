@@ -37,3 +37,10 @@
 	- HTTP version the client supports or wants the server to respond in
 	- \r\n is end of req line
 
+  - to serve multimedia content like images and videos, we need to let the server know about the content-type
+  - it is important for the rendering of the file
+  - currently we are sending text/html type, so if we send a png, the screen will be full of gibberish
+  - this content-type is also known as media type (formerly as MIME type)
+	- it tells us the intended type of file (keeping in mind that extentions dont show the intended type)
+	- MIME stands for Multipurpose Internet Mail Extentions
+	- MIME was first defined for denoting email message content and attatchments

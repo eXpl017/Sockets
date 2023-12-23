@@ -4,6 +4,7 @@ import os
 import socket
 import signal
 from copy import deepcopy
+import mimetypes
 
 # creating a class for the server
 class TCPserver():
@@ -133,6 +134,10 @@ class HTTPserver(TCPserver):
 			return b''.join([res_status, res_headers, blank, res_body])
 
 		if os.path.exists(filename):
+			content_type = mimetypes.guess_type(filename)[0]
+			print(content_type)
+			extra_headers = {"Content-type": content_type}
+
 			res_status = self.res_status(200)
 			with open(filename,'rb') as f:
 				res_body = f.read()
@@ -142,9 +147,8 @@ class HTTPserver(TCPserver):
 			res_body = b'<h1>404 Not Found</h1>'
 
 		blank = '\r\n'.encode()
-		res_headers = self.res_headers()
+		res_headers = self.res_headers(extra_headers)
 
-		print(b''.join([res_status, res_headers, blank, res_body]))
 		return (b''.join([res_status, res_headers, blank, res_body]))
 
 	# method for telling that a method is not implmented
@@ -166,7 +170,7 @@ class HTTPserver(TCPserver):
 		headers_copy = deepcopy(self.headers)
 
 		if extra_headers:
-			headers_copy = headers_copy.update(extra_headers)
+			headers_copy.update(extra_headers)
 
 		headers = ""
 
