@@ -26,7 +26,7 @@ class TCPclient():
 
 		try:
 			# sending message to server in bytes
-			message = b'This is a message.\nIt will be repeated.'
+			message = b'GET is a message.\nIt will be repeated.'
 			s.sendall(message)
 
 			# checking for response from server

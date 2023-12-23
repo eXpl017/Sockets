@@ -1,5 +1,6 @@
 # implementation of HTTP server by changing code in the echo server directly
 
+import os
 import socket
 import signal
 from copy import deepcopy
@@ -82,7 +83,8 @@ class HTTPserver(TCPserver):
 		super().__init__(host, port)
 		self.status_codes = {
 			200:'OK',
-			404:'Not Found'
+			404:'Not Found',
+			501:'Not Implemented'
 		}
 		self.headers = {
 			'Server': 'Lmao Server',
@@ -92,13 +94,67 @@ class HTTPserver(TCPserver):
 	# overriding the handle_request method from parent class
 	def handle_request(self, data_recv):
 		if data_recv:
+			# print(data_recv)
+			req = HTTPrequest(data_recv)
+
+			# getattr can be used to get the attr or method, here we use it to get the method for handling the req
+			# as that method is in this class itself, we using 'self'
+			try:
+				handle = getattr(self, f'handle_{req.method}')		# this does run the function
+			except AttributeError:
+				# if we dont have the method to handle that specific req method, we send 501 res (Not Implemented)
+				handle = self.HTTP_501
+
+			return handle(req)
+
+		else:
+			return 0
+
+	# simple response, no checking of req line etc.
+	def simple_res(self, data_recv):			# changed it to check output, earlier name is simple_res
+		if data_recv:
 			res_status = self.res_status(200)
 			res_headers = self.res_headers()
 			blank = '\r\n'.encode()
-			res_body = """<html><body><h1>This is the LMAO server!</body></html>""".encode()
+			res_body = """<html><body><h1>Hello, this is LMAO server!</h1></body></html>""".encode()
 			return b''.join([res_status, res_headers, blank, res_body])
 		else:
 			return 0
+
+	# handle GET req
+	def handle_GET(self, req):
+		filename = req.uri.strip(b'/').decode()
+
+		if filename == "":
+			res_status = self.res_status(200)
+			res_headers = self.res_headers()
+			blank = '\r\n'.encode()
+			res_body = """<html><body><h1>Hello, this is LMAO server!</h1></body></html>""".encode()
+			return b''.join([res_status, res_headers, blank, res_body])
+
+		if os.path.exists(filename):
+			res_status = self.res_status(200)
+			with open(filename,'rb') as f:
+				res_body = f.read()
+				# res_body = f"""<html><body><h1>Hello, this is LMAO server!</h1></body></html>""".encode()
+		else:
+			res_status = self.res_status(404)
+			res_body = b'<h1>404 Not Found</h1>'
+
+		blank = '\r\n'.encode()
+		res_headers = self.res_headers()
+
+		print(b''.join([res_status, res_headers, blank, res_body]))
+		return (b''.join([res_status, res_headers, blank, res_body]))
+
+	# method for telling that a method is not implmented
+	# notice that the param req is not used in the function
+	def HTTP_501(self, req):
+		res_status = self.res_status(501)
+		res_headers = self.res_headers()
+		blank = '\r\n'.encode()
+		res_body = "<h1>Not Implemented!</h1>".encode()
+		return b''.join([res_status, res_headers, blank, res_body])
 
 	# method to return the response status line when called with the status code
 	def res_status(self, status_code):
@@ -118,6 +174,35 @@ class HTTPserver(TCPserver):
 			headers += f"{header}: {headers_copy[header]}\r\n"
 
 		return headers.encode()
+
+
+# class defining the request, and parsing it
+class HTTPrequest:
+	# defining the defaults and parsing them
+	def __init__(self, data):
+		self.method = None
+		self.uri = None
+		self.http_version = '1.1'
+
+		self.parse_req_line(data)
+
+	# this method is just to parse the first line i.e req line
+	def parse_req_line(self, data):
+		lines = data.split(b'\r\n')
+		req_line = lines[0]
+		words = req_line.split(b' ')
+
+		self.method = words[0].decode()
+
+		# the below is something i was unable to confirm online. as per HTTP/1.1 standards, even if the req is for homepage, '/' has to be included for URI
+		# sometimes browsers omit the URI completely when the req is to homepage of a website (not even including the '/'), so the below is to handle that
+		if len(words) == 2:
+			self.http_version = words[1]
+		else:
+			self.http_version = words[2]
+
+		self.uri = words[1]
+
 
 if __name__ == '__main__':
 	server = HTTPserver()
